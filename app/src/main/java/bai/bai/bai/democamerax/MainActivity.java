@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageCapture mImageCapture;
     private ImageAnalysis mImageAnalysis;
 
+    private CustomLifecycle mCustomLifecycle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,8 +78,16 @@ public class MainActivity extends AppCompatActivity {
         //
         // 也可以自定义生命周期，新建一个实现 lifecycleOwner 接口的类，并实现其抽象方法
         //
-        CameraX.bindToLifecycle(MainActivity.this, mPreview, mImageCapture, mImageAnalysis);
+//        CameraX.bindToLifecycle(MainActivity.this, mPreview, mImageCapture, mImageAnalysis);
+        mCustomLifecycle = new CustomLifecycle();
+        CameraX.bindToLifecycle(mCustomLifecycle, mPreview, mImageCapture, mImageAnalysis);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mCustomLifecycle.doOnResume();
     }
 
     public void onClick(View view) {
@@ -185,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * 待研究 自定义生命周期
+     * 自定义生命周期
      */
     class CustomLifecycle implements LifecycleOwner {
 
@@ -196,21 +206,23 @@ public class MainActivity extends AppCompatActivity {
             mLifecycleRegistry.markState(Lifecycle.State.CREATED);
         }
 
-        public void doOnResume() {
-            Log.d(TAG, "doOnResume前");
-            mLifecycleRegistry.markState(Lifecycle.State.RESUMED);
-            Log.d(TAG, "doOnResume");
+        public void doOnCreate() {
+            Log.d(TAG, "doOnCreate");
+            mLifecycleRegistry.markState(Lifecycle.State.CREATED);
         }
 
         public void doOnStart() {
+            Log.d(TAG, "doOnStart");
             mLifecycleRegistry.markState(Lifecycle.State.STARTED);
         }
 
-        public void doOnReStart() {
+        public void doOnResume() {
+            Log.d(TAG, "doOnResume");
             mLifecycleRegistry.markState(Lifecycle.State.RESUMED);
         }
 
         public void doOnDestory() {
+            Log.d(TAG, "doOnDestory");
             mLifecycleRegistry.markState(Lifecycle.State.DESTROYED);
         }
 
